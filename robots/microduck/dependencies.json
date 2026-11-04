@@ -1,0 +1,15 @@
+{
+  "controller": {
+    "repository": "https://github.com/pollen-robotics/microduck",
+    "revision": "d13be2c1a2f4b1e0b0e499b08b92f870518b1384"
+  },
+  "simulator": {
+    "repository": "https://github.com/pollen-robotics/microduck_rl",
+    "revision": "bae39f5900b318f7e87fc485c30a31213cfa14eb"
+  },
+  "policies": {
+    "repository": "pollen-robotics/microduck-policies",
+    "version": "v8",
+    "revision": "665ae4eb20bfe13bca1ef4ea6d4bb6b4a096e448"
+  }
+}

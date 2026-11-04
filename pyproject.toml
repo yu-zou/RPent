@@ -64,6 +64,7 @@ Documentation = "https://rpent.readthedocs.io/en/latest/"
 "Bug Report" = "https://github.com/RLinf/RPent/issues"
 
 [project.optional-dependencies]
+microduck = ["imageio-ffmpeg>=0.5"]
 test = [
     "coverage",
     "pytest",
