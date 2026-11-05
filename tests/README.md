@@ -64,8 +64,82 @@ not contact external services.
 Run the complete suite with:
 
 ```bash
-pytest tests/unit_tests -v
+python -m pytest tests/unit_tests -v
 ```
+
+## Microduck offline and opt-in CLI checks
+
+Use the existing current host venv for every host Python command, including
+children (which use `sys.executable` unchanged). Do not use system Python,
+`uv run`, a new environment or automatic tool installation. RPent and the
+`microduck` extra are prerequisites; opt-in video decoding also requires
+`imageio`. Missing tools require operator permission to install in this venv.
+The simulator Python environment is inside the separately prepared image.
+
+```bash
+python -c 'import sys; assert sys.prefix != sys.base_prefix, "Use the current host venv"; print(sys.executable)'
+python -m pytest tests/unit_tests/robots/microduck -v
+python -m pytest tests/e2e_tests/microduck/test_cli.py -v
+```
+
+The second command is offline. The third runs offline scripted-CLI contracts
+and skips the four live CLI cases unless `RPENT_MICRODUCK_E2E=1`. Collection
+does not import optional video/simulator dependencies. Offline tests alone do
+not establish live host integration, gait success or model quality.
+
+Prepare the image manually using the exact
+proxy-aware build command in [the robot guide](../robots/microduck/README.md).
+Ensure local Linux Unix-socket Docker permissions and output UID:GID write
+access. Then, with `pytest-timeout` available in this venv:
+
+```bash
+RPENT_MICRODUCK_E2E=1 python -m pytest tests/e2e_tests/microduck -v
+```
+
+`MICRODUCK_IMAGE` overrides the test image (default `rpent-microduck:local`).
+Opt-in without an image or timeout plugin explicitly fails; an unknown timeout
+mark is not an enforced deadline. CLI cases each have a 600-second timeout;
+the separate Env smoke has a 480-second timeout. Tests never build, pull or
+download. The CLI cases use the real RobotSpec, supervisor, container and Env,
+injecting only a deterministic planner at the existing CLI factory seam.
+They check +0.4 forward5/-0.4 backward default3/finish ordering, empty observations,
+registered decodable root video and startup frames, planner/publication failures,
+parent death and absence of owned containers. Startup contact sheets support
+manual stand-up/framing inspection; they do not prove gait success. Forced parent
+death need not produce a video. Tests never prune or remove unrelated resources.
+
+These tests make no provider requests and require no planner credentials. For
+the separate named-model CLI demonstration, configure `OPENAI_API_KEY` and,
+if using a custom OpenAI-compatible endpoint, `OPENAI_BASE_URL`. That endpoint
+must serve the exact `openai:deepseek-flash` model. A passing deterministic
+integration test does not guarantee the model will choose the intended calls.
+
+### Current-venv documentation and lint checks
+
+Documentation prerequisites are pinned in `docs/requirements.txt`; Ruff must be
+0.15.22. Install only with operator approval. Check changed paths read-only first:
+
+```bash
+python -m ruff --version
+python -m ruff check --preview -- path/to/changed.py
+python -m ruff format --check -- path/to/changed.py
+python -m sphinx -W --keep-going docs/source-en docs/build/html-en
+python -m sphinx -W --keep-going docs/source-zh docs/build/html-zh
+```
+
+After the owner has reviewed and staged eligible new files, the hook-equivalent
+full tracked-file commands below may change files. Do not run them over unrelated
+work without review; inspect the diff and rerun tests afterward:
+
+```bash
+git ls-files -z -- '*.py' '*.pyi' | xargs -0 -r python -m ruff check --preview --fix --
+git ls-files -z -- '*.py' '*.pyi' | xargs -0 -r python -m ruff format --
+```
+
+These are current-venv Ruff equivalents, not a claim that the pre-commit wrapper
+or commit-message hook ran. The wrapper provisions separate hook environments
+and needs an explicit environment-policy exception under this workflow.
+Inspect rendered Chinese inline markup as well as both warning-as-error builds.
 
 ## RoboCasa environment smoke tests
 

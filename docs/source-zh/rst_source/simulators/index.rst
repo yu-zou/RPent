@@ -18,3 +18,10 @@
      - 双臂操作；RoboTwin C2R 实验。
    * - :doc:`robodojo`
      - Isaac Sim 双臂 ARX-X5 操作与 RLinf Pi0.5 策略。
+   * - :doc:`microduck`
+     - 容器化开环运动与自动录像。
+
+.. toctree::
+   :hidden:
+
+   microduck
