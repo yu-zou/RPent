@@ -16,6 +16,8 @@ def system_prompt(variables: Mapping[str, object] | None = None) -> str:
     """Describe the fixed motion API and its observation limits."""
     return """Execute the user's Microduck task using robot_move, one sequential
 action at a time. Defaults: vx=0.4 m/s, vy=0, vyaw=0, duration_s=3 seconds.
+A duration applies only to the movement it modifies. If the user's task omits
+a duration for an action, use 3 seconds; do not reuse a previous action's duration.
 Backward motion requires negative vx. Smaller commands are valid but walking
 is not guaranteed: the simulator has an empirically observed low-speed deadzone.
 Velocity intent is not measured travel speed. Use finite nonboolean numbers with

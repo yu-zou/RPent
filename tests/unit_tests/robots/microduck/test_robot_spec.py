@@ -108,6 +108,30 @@ def test_task_defaults_image_and_verbatim_prompt(tmp_path):
     assert not spec.is_real_robot and not spec.supports_exploration
 
 
+@pytest.mark.parametrize(
+    "task",
+    [
+        "move forward 5 seconds, and then move backward",
+        "  Move backward for 7 seconds.\nThen turn {left}.  ",
+        "Turn for 2 seconds, move forward, then move backward for 4 seconds.",
+    ],
+)
+def test_rendered_prompts_scope_duration_per_action_and_preserve_task(tmp_path, task):
+    from robots.microduck import get_robot_spec
+
+    spec = get_robot_spec()
+    config = spec.parse_config(options(tmp_path, task=task))
+    assert spec.prompts.render("user", variables=config.prompt_vars) == (
+        f"Task (verbatim):\n{task}\nEnd of task.\n"
+    )
+    system = " ".join(
+        spec.prompts.render("system", variables=config.prompt_vars).split()
+    )
+    assert "duration applies only to the movement it modifies" in system
+    assert "omits a duration for an action, use 3 seconds" in system
+    assert "do not reuse a previous action's duration" in system
+
+
 def test_timestamped_output_and_fresh_memory_no_corpus(tmp_path, monkeypatch):
     from robots.microduck import get_robot_spec, get_toolkit, robot_spec
 
