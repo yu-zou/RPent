@@ -33,6 +33,7 @@ EXPECTED_ROBOTS = (
     "dual_franka",
     "franka",
     "libero",
+    "microduck",
     "robocasa",
     "robodojo",
     "robotwin",
@@ -40,6 +41,7 @@ EXPECTED_ROBOTS = (
 )
 
 PROMPT_VARIABLES = {
+    "microduck": {"task": "Walk forward, then backward", "memory_dir": "/memory"},
     "yam": {
         "task_id": 1,
         "seed": 0,
@@ -197,6 +199,9 @@ def test_dashboard_metadata_has_consistent_fields_and_runtime_components(
     robot_name: str,
 ) -> None:
     dashboard = get_robot_spec(robot_name).dashboard
+    if robot_name == "microduck":
+        assert dashboard is None
+        return
     assert dashboard is not None
 
     task = dashboard["task"]
